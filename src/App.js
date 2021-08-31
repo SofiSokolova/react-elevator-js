@@ -7,10 +7,18 @@ const moveDirectionEnum = {
   STANDING: "Standing"
 }
 
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  return ref.current;
+}
+
 const floorNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-export function Elevator(props) {
-
+export function Elevator() {
   const [currentFloor, setFloor] = useState(floorNumbers[0]);
   const [upQueue, setToUpQueue] = useState(new Set());
   const [downQueue, setToDownQueue] = useState(new Set());
@@ -20,64 +28,69 @@ export function Elevator(props) {
 
   useEffect(() => {
     if (prevDirection === moveDirectionEnum.STANDING && moveDirection !== moveDirectionEnum.STANDING) {
-      console.log('LOL');
       moveElevator();
     }
+  }, [moveDirection]);
 
-    if (moveDirection !== moveDirectionEnum.STANDING) {
-      moveElevator()
-      //delay += hasFloor ? 2000 : 0;
-      
-    }
-  })
-  
+  useEffect(() => {
+    moveElevator();
+  }, [currentFloor]);
+
   function handleClick(floor) {
     if (floor > currentFloor) {
-      setToUpQueue(upQueue.add(floor))
+      setToUpQueue(new Set(upQueue).add(floor));
       if (moveDirection === moveDirectionEnum.STANDING) {
-        setNewDirection(moveDirectionEnum.UP)
+        setNewDirection(moveDirectionEnum.UP);
       }
     }
 
     if (floor < currentFloor) {
-      setToDownQueue(downQueue.add(floor))
+      setToDownQueue(new Set(downQueue).add(floor));
       if (moveDirection === moveDirectionEnum.STANDING) {
-        setNewDirection(moveDirectionEnum.DOWN)
+        setNewDirection(moveDirectionEnum.DOWN);
       }
     }
   }
 
   function moveElevator() {
     let delay = 1000;
+    let hasFloor = false;
+    let newDirection = moveDirection;
+
     if (upQueue.has(currentFloor) || downQueue.has(currentFloor)) {
-      console.log('11111111111111');
-      console.log(upQueue);
+      hasFloor = true;
 
-      upQueue.delete(currentFloor)
-      setToUpQueue(upQueue);
-      
-      downQueue.delete(currentFloor)
-      setToDownQueue(downQueue);
+      const upQ = new Set(upQueue);
+      const downQ = new Set(downQueue);
 
-      if (!upQueue.size && !downQueue.size) {
-        console.log('22222222222222');
-        setNewDirection(moveDirectionEnum.STANDING);
+      upQ.delete(currentFloor);
+      downQ.delete(currentFloor);
+      setToUpQueue(upQ);
+      setToDownQueue(downQ);
+
+      if (!upQ.size && !downQ.size) {
+        newDirection = moveDirectionEnum.STANDING;
+        setNewDirection(newDirection);
       }
-      if (!upQueue.size && downQueue.size) {
-        setNewDirection(moveDirectionEnum.DOWN);
+      if (!upQ.size && downQ.size) {
+        newDirection = moveDirectionEnum.DOWN;
+        setNewDirection(newDirection);
       }
-      if (upQueue.size && !downQueue.size) {
-        setNewDirection(moveDirectionEnum.UP);
+      if (upQ.size && !downQ.size) {
+        newDirection = moveDirectionEnum.UP;
+        setNewDirection(newDirection);
       }
-    } else {
-      console.log('================');
+    }
+
+    if (newDirection !== moveDirectionEnum.STANDING) {
+      delay += hasFloor ? 2000 : 0;
+
       setTimeout(() => {
-        const floor = currentFloor + (moveDirection === moveDirectionEnum.UP ? 1 : -1);
-        
-        setFloor(floor)
-      }, 2000)
+        setFloor(currentFloor + (newDirection === moveDirectionEnum.UP ? 1 : -1));
+      }, delay)
     }
   }
+
 
   return (
     <div className='main'>
@@ -101,18 +114,5 @@ export function Elevator(props) {
     </div>
 
   );
+
 }
-
-function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-
-  return ref.current;
-}
-  
-
-
-
-  
