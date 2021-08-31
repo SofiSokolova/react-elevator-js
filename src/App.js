@@ -20,17 +20,14 @@ export function Elevator(props) {
 
   useEffect(() => {
     if (prevDirection === moveDirectionEnum.STANDING && moveDirection !== moveDirectionEnum.STANDING) {
+      console.log('LOL');
       moveElevator();
     }
-    console.log(moveDirection);
-    if (moveDirection !== moveDirectionEnum.STANDING) {
-      //delay += hasFloor ? 2000 : 0;
-      setTimeout(() => {
-        const floor = currentFloor + (moveDirection === moveDirectionEnum.UP ? 1 : -1);
 
-        setFloor(floor)
-        moveElevator();
-      }, 1000)
+    if (moveDirection !== moveDirectionEnum.STANDING) {
+      moveElevator()
+      //delay += hasFloor ? 2000 : 0;
+      
     }
   })
   
@@ -48,21 +45,22 @@ export function Elevator(props) {
         setNewDirection(moveDirectionEnum.DOWN)
       }
     }
-
   }
 
   function moveElevator() {
     let delay = 1000;
-    let hasFloor = false;
-
     if (upQueue.has(currentFloor) || downQueue.has(currentFloor)) {
+      console.log('11111111111111');
+      console.log(upQueue);
 
-      hasFloor = true;
-
-      setToUpQueue(upQueue.delete(currentFloor));
-      setToDownQueue(downQueue.delete(currentFloor));
+      upQueue.delete(currentFloor)
+      setToUpQueue(upQueue);
+      
+      downQueue.delete(currentFloor)
+      setToDownQueue(downQueue);
 
       if (!upQueue.size && !downQueue.size) {
+        console.log('22222222222222');
         setNewDirection(moveDirectionEnum.STANDING);
       }
       if (!upQueue.size && downQueue.size) {
@@ -71,19 +69,14 @@ export function Elevator(props) {
       if (upQueue.size && !downQueue.size) {
         setNewDirection(moveDirectionEnum.UP);
       }
+    } else {
+      console.log('================');
+      setTimeout(() => {
+        const floor = currentFloor + (moveDirection === moveDirectionEnum.UP ? 1 : -1);
+        
+        setFloor(floor)
+      }, 2000)
     }
-
-    // if (moveDirection !== moveDirectionEnum.STANDING) {
-    //   delay += hasFloor ? 2000 : 0;
-    //
-    //     setTimeout(() => {
-    //       const floor = currentFloor + (moveDirection === moveDirectionEnum.UP ? 1 : -1);
-    //       console.log(floor);
-    //       setFloor(floor)
-    //       moveElevator();
-    //     }, delay)
-    //
-    // }
   }
 
   return (
