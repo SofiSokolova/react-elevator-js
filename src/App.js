@@ -53,7 +53,6 @@ export function Elevator() {
   }
 
   function moveElevator() {
-    let delay = 1000;
     let hasFloor = false;
     let newDirection = moveDirection;
 
@@ -70,24 +69,17 @@ export function Elevator() {
 
       if (!upQ.size && !downQ.size) {
         newDirection = moveDirectionEnum.STANDING;
-        setNewDirection(newDirection);
-      }
-      if (!upQ.size && downQ.size) {
+      } else if (!upQ.size && downQ.size) {
         newDirection = moveDirectionEnum.DOWN;
-        setNewDirection(newDirection);
-      }
-      if (upQ.size && !downQ.size) {
+      } else if (upQ.size && !downQ.size) {
         newDirection = moveDirectionEnum.UP;
-        setNewDirection(newDirection);
       }
+      setNewDirection(newDirection);
     }
-
     if (newDirection !== moveDirectionEnum.STANDING) {
-      delay += hasFloor ? 2000 : 0;
-
       setTimeout(() => {
         setFloor(currentFloor + (newDirection === moveDirectionEnum.UP ? 1 : -1));
-      }, delay)
+      }, hasFloor ? 3000 : 1000)
     }
   }
 
